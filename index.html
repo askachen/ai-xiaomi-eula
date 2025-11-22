@@ -256,7 +256,6 @@
       <div id="status" class="status"></div>
     </div>
   </div>
-
   <script>
     const API_ENDPOINT = "/api/external/line/eula/consent"; // 後端 EULA 同意 API
 
@@ -276,7 +275,7 @@
 
     async function initLiff() {
       try {
-        await liff.init({ liffId: "2008550298-O2v7brYe" });
+        await liff.init({ liffId: "YOUR_LIFF_ID" }); // TODO: 替換成你的 LIFF ID
 
         if (!liff.isLoggedIn()) {
           liff.login();
@@ -309,5 +308,55 @@
         };
 
         const res = await fetch(API_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
 
+        if (!res.ok) {
+          throw new Error("API response not ok");
+        }
 
+        const data = await res.json().catch(() => ({}));
+
+        if (agreed) {
+          setStatus("已同意使用者授權條款，將返回 AI 小咪。", "success");
+          // 依你的 UX：關閉 LIFF 或導回主頁
+          setTimeout(() => {
+            if (liff.isInClient()) {
+              liff.closeWindow();
+            } else if (data.redirectUrl) {
+              window.location.href = data.redirectUrl;
+            }
+          }, 800);
+        } else {
+          setStatus("您已選擇不同意，將結束本服務使用。", "success");
+          setTimeout(() => {
+            if (liff.isInClient()) {
+              liff.closeWindow();
+            } else if (data.redirectUrl) {
+              window.location.href = data.redirectUrl;
+            }
+          }, 800);
+        }
+      } catch (err) {
+        console.error(err);
+        setStatus("送出資料時發生錯誤，請稍後再試。", "error");
+        setLoading(false);
+      }
+    }
+
+    btnAccept.addEventListener("click", () => {
+      sendConsent(true);
+    });
+
+    btnDecline.addEventListener("click", () => {
+      sendConsent(false);
+    });
+
+    initLiff();
+  </script>
+</body>
+</html>
