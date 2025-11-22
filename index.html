@@ -258,7 +258,7 @@
   </div>
 
   <script>
-    const API_ENDPOINT = "/api/eula/consent"; // TODO: 換成你實際的後端 API
+    const API_ENDPOINT = "/api/external/line/eula/consent"; // 後端 EULA 同意 API
 
     const statusEl = document.getElementById("status");
     const btnAccept = document.getElementById("btn-accept");
@@ -309,4 +309,5 @@
         };
 
         const res = await fetch(API_ENDPOINT, {
+
 
